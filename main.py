@@ -51,7 +51,6 @@ def index():
     return "Sudoku Multiplayer Backend is running!"
 
 @app.route("/create_room", methods=['POST'])
-@cross_origin()
 def create_room():
     data = request.get_json()
     player_name = data.get('player_name')
@@ -78,7 +77,6 @@ def create_room():
     })
 
 @app.route("/join_room", methods=['POST'])
-@cross_origin()
 def join_room_api():
     data = request.get_json()
     room_id = data.get('room_id')
