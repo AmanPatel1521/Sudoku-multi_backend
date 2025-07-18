@@ -8,8 +8,8 @@ import os  # Required to read PORT from environment
 from game import SudokuGenerator  # Make sure this file exists
 
 app = Flask(__name__)
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
+CORS(app, origins=["https://sudoku-multi-frontend.vercel.app"])
+socketio = SocketIO(app, cors_allowed_origins=["https://sudoku-multi-frontend.vercel.app"])
 
 rooms = {}
 
