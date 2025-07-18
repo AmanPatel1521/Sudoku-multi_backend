@@ -4,9 +4,10 @@ from flask_cors import CORS, cross_origin
 import uuid
 import random
 
+
 app = Flask(__name__)
 CORS(app)
-socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+socketio = SocketIO(app)
 
 
 from game import SudokuGenerator
@@ -199,4 +200,4 @@ def on_disconnect():
     pass
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
