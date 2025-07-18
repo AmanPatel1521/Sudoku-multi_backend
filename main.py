@@ -3,14 +3,13 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS, cross_origin
 import uuid
 import random
+import os  # Required to read PORT from environment
 
+from game import SudokuGenerator  # Make sure this file exists
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app)
-
-
-from game import SudokuGenerator
+socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
 
 rooms = {}
 
@@ -80,7 +79,7 @@ def create_room():
 
 @app.route("/join_room", methods=['POST'])
 @cross_origin()
-def join_room():
+def join_room_api():
     data = request.get_json()
     room_id = data.get('room_id')
     player_name = data.get('player_name')
@@ -152,7 +151,11 @@ def on_move(data):
             player.mistakes += 1
             if player.mistakes >= 3:
                 player.eliminated = True
-                emit('player_eliminated', {"player_id": player.id, "player_name": player.name, "message": f"{player.name} has been eliminated!"}, to=room_id)
+                emit('player_eliminated', {
+                    "player_id": player.id,
+                    "player_name": player.name,
+                    "message": f"{player.name} has been eliminated!"
+                }, to=room_id)
                 emit('eliminated', {"message": "You have been eliminated!"}, room=request.sid)
 
     emit('game_state_update', {
@@ -195,9 +198,8 @@ def on_hint(data):
 
 @socketio.on('disconnect')
 def on_disconnect():
-    # This is more complex in a real app; you'd need to find which player/room disconnected.
-    # For this example, we'll assume a simple cleanup.
-    pass
+    pass  # Handle disconnect logic here
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    port = int(os.environ.get("PORT", 5000))  # Use PORT from environment if set
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host="0.0.0.0", port=port)
