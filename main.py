@@ -6,7 +6,8 @@ import random
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+
 
 from game import SudokuGenerator
 
