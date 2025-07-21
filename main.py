@@ -97,6 +97,9 @@ def join_room_route():
             return jsonify({"error": "Room not found"}), 404
 
         room = rooms[room_id]
+        if room.game_started:
+            return jsonify({"error": "Game has already started"}), 403
+
         puzzle = room.puzzle
         solution = room.solution
 
@@ -132,11 +135,17 @@ def on_join(data):
     ]
     emit('current_players', {"players": current_players_info}, to=room_id)
 
-    emit('game_state_update', {
-        "game_state": player.game_state.to_dict(),
-        "mistakes": player.mistakes,
-        "hints": player.hints_used
-    }, room=request.sid)
+@socketio.on('start_game')
+def on_start_game(data):
+    room_id = data['room_id']
+    player_id = data['player_id']
+
+    room = rooms.get(room_id)
+    if not room or player_id != room.host_id:
+        return
+
+    room.game_started = True
+    emit('game_started', {"message": "Game started!"}, to=room_id)
 
 @socketio.on('move')
 def on_move(data):
